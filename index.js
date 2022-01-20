@@ -1,32 +1,46 @@
+//~~~~~~~~~~~~~~~~~~~
+// Base Setup
+// ~~~~~~~~~~~~~~~~~~
 const express = require('express');
 const app = express();
-//value is part of import express
-const PORT = process.env.PORT || 6907; //does port number matter? suggeested was 8080
+const bodyParser = require('body-parser');
 
-app.use(express.json())
-//change from app = require('express')(); to this configuration to use middleware
+//configuratinos to make app use bodyparser
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json());
 
-app.listen(
-    PORT,
-    () => console.log(`woah it's working! url is http://localhost:${PORT}`)
-)
+var port = process.env.PORT || 8069; //setting a port number
 
-app.get('/lol', (req, res) => {
-    res.status(200).send({
-        lol: 'lmao',
-        found: true,
-        working: 'yes!'
-    })
-})
+const mongoose = require('mongoose');
+const { MongoClient } = require('mongodb');
+const uri = "mongodb+srv://PublicUser:publicpassword@tyrowo.qramt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+client.connect(err => {
+    const collection = client.db("test").collection("devices");
+    // perform actions on the collection object
+    client.close();
+});
+//connects to mongodb that I set up. hopefully.
 
-app.post('/lol/:id', (req, res) => {
-    let { id } = req.params;
-    let { idk } = req.body;
+const Lulz = require('./lulzModel')
 
-    if (!idk) {
-        res.status(418).send({ message: 'Idk is required!' })
-    }
-    res.send({
-        lol: `post made with ${idk}! ID of post is ${id}.`
-    })
-})
+//~~~~~~~~~~~~~~~~~~~~
+// API Routes 
+//~~~~~~~~~~~~~~~~~~~~
+const router = express.Router(); //creates instance of express router
+
+router.get('/', (req, res) => {
+    res.json({ message: 'Nice! The API is working!' })
+});
+
+//more routes later
+
+//route registration ??
+//all routes prefixed with /api
+app.use('/api', router);
+
+//~~~~~~~~~~~~~~~~~~~~
+// starting the server
+//~~~~~~~~~~~~~~~~~~~~
+app.listen(port);
+console.log(`we're working on port ${port}.`);
