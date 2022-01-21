@@ -14,7 +14,7 @@ var port = process.env.PORT || 8069; //setting a port number
 const mongoose = require('mongoose');
 const uri = "mongodb+srv://PublicUser:publicpassword@tyrowo.qramt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 mongoose.connect(uri);
-//connects to mongodb that I set up. hopefully.
+//connects to mongodb that I set up.
 
 const Lulz = require('./lulzModel');
 
@@ -54,8 +54,7 @@ router.route('/lulz')
                 res.json({ message: 'Made new lulz!' });
             }
         });
-    });
-router.route('/lulz')
+    })
     //get all lulz function
     .get((req, res) => {
         Lulz.find((err, lulz) => {
@@ -64,8 +63,35 @@ router.route('/lulz')
         });
     });
 
+//id routes for get post and delete routes
+router.route('/lulz/:lulz_id')
+    .get((req, res) => {
+        Lulz.findById(req.params.lulz_id, (err, lulz) => {
+            if (err) res.send(err);
+            res.json(lulz);
+        });
+    })
 
+    .put((req, res) => {
+        Lulz.findById(req.params.lulz_id, (err, lulz) => {
+            if (err) res.send(err);
+            lulz.name = req.body.name; //changes cur lulz name to new name
 
+            lulz.save((err) => {
+                if (err) res.send(err);
+                res.json({ message: `Lulz ${lulz.name} updated!` });
+            });
+        });
+    })
+
+    .deleteOne((req, res) => {
+        Lulz.remove({
+            _id: req.params.lulz_id
+        }, (err, lulz) => {
+            if (err) res.send(err);
+            res.json({ message: `Successfully deleted lulz.` });
+        });
+    });
 
 //~~~~~~~~~~~~~~~~~~~~
 // starting the server
